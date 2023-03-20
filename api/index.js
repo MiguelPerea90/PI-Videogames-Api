@@ -21,7 +21,7 @@
 /**ESTE MÓDULO TIENE LA RESPONSABILIDAD DE INICIAR LA APLICACIÓN Y SINCRONIZAR LAS TABLAS*/
 const server = require('./src/app.js');
 const { conn } = require('./src/db.js');
-const { PORT } = require("../api/src/config.js")
+const { PORT } = require("./config.js");
 
 // Syncing all the models at once.
 conn.sync({ force : false }).then(() => {  // alter: true => Update Table // force: true => Drop Table
