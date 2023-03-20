@@ -35,10 +35,10 @@ const { API_KEY, API_URL} = process.env;
 //  // ESTE CONTROLLER TRAE TODO DE LA DB Y LA API
 const getAllVideogames = async () => {
     
- //Aqui trae todos los videogames de la db.
+    //Aqui traigo todos los videogames de la api.
+    const apiVideogames = cleanArray(data)
 
-    const dbVideogames = cleanArray(data)
-
+    //Aqui traigo todos los videogames de la db.
     const databaseVideogames = await Videogame.findAll({
         include: [{
             model: Genre,
@@ -55,7 +55,7 @@ const getAllVideogames = async () => {
         }],
     }); 
 
-    const infoTotal = [...dbVideogames, ...databaseVideogames];
+    const infoTotal = [...apiVideogames, ...databaseVideogames];
 
     return infoTotal;
 };
@@ -101,7 +101,7 @@ const getVideogameApiById = async (id) => {
                 }
             }),
             image: apiVideogameById.background_image,
-        }
+    }
 
     return videogameById;
         
