@@ -21,11 +21,12 @@
 /**ESTE MÓDULO TIENE LA RESPONSABILIDAD DE INICIAR LA APLICACIÓN Y SINCRONIZAR LAS TABLAS*/
 const server = require('./src/app.js');
 const { conn } = require('./src/db.js');
-const { PORT } = require("./config.js");
+const port = process.env.PORT || 3001;
+
 
 // Syncing all the models at once.
 conn.sync({ force : false }).then(() => {  // alter: true => Update Table // force: true => Drop Table
-  server.listen(PORT, () => {
-    console.log('%s listening at', PORT); // eslint-disable-line no-console
+  server.listen(port, () => {
+    console.log('%s listening at', port); // eslint-disable-line no-console
   });
 });
