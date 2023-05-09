@@ -1,42 +1,67 @@
 const axios = require("axios");
-const data = require("./dataApi")
+// const data = require("./dataApi")
 const { Videogame, Genre, Platform } = require("../db");
 const { API_KEY, API_URL} = process.env;
 
 
 // CONTROLLERS:
 
- // ESTA FUNCIÓN MAPEA LOS RESULTADOS DE LA API Y ES REQUERIDA EN getAllVideogames
- const cleanArray = (arr) => {
-    return arr.map( element => {
-        return {
-          id: element.id,
-          name: element.name,
-          released: element.released,
-          image: element.image,
-          description: element.description,
-          rating: element.rating,
-          Platforms: element.Platforms.map(element => {
-              return {
-                  id: element.id,
-                  name: element.name
-              }
-          }),
-          Genres: element.Genres.map(element => {
-              return {
-                  id: element.id,
-                  name: element.name
-              }
-          })
-        };
-    });
-};
+ // ESTA FUNCIÓN MAPEA LOS RESULTADOS DE LA API // - NO ESTÁ EN USO - //
+//  const cleanArray = (arr) => {
+//     return arr.map( element => {
+//         return {
+//           id: element.id,
+//           name: element.name,
+//           released: element.released,
+//           image: element.image,
+//           description: element.description,
+//           rating: element.rating,
+//           Platforms: element.Platforms.map(element => {
+//               return {
+//                   id: element.id,
+//                   name: element.name
+//               }
+//           }),
+//           Genres: element.Genres.map(element => {
+//               return {
+//                   id: element.id,
+//                   name: element.name
+//               }
+//           })
+//         };
+//     });
+// };
 
 //  // ESTE CONTROLLER TRAE TODO DE LA DB Y LA API
 const getAllVideogames = async () => {
     
     //Aqui traigo todos los videogames de la api.
-    const apiVideogames = cleanArray(data)
+    const apiVideogames = ( 
+        await axios.get(`${API_URL}?key=${API_KEY}`)
+    ).data;
+
+    const apiVideogamesClean = apiVideogames.map(videogame => {
+        return {
+            id: videogame.id,
+            name: videogame.name,
+            released: videogame.released,
+            image: videogame.image,
+            description: videogame.description,
+            rating: videogame.rating,
+            Platforms: videogame.Platforms.map(element => {
+                return {
+                    id: element.id,
+                    name: element.name
+                }
+            }),
+            Genres: videogame.Genres.map(element => {
+                return {
+                    id: element.id,
+                    name: element.name
+                }
+            })
+          };
+    })
 
     //Aqui traigo todos los videogames de la db.
     const databaseVideogames = await Videogame.findAll({
@@ -55,7 +80,7 @@ const getAllVideogames = async () => {
         }],
     }); 
 
-    const infoTotal = [...apiVideogames, ...databaseVideogames];
+    const infoTotal = [...apiVideogamesClean, ...databaseVideogames];
 
     return infoTotal;
 };
