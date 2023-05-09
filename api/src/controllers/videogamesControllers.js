@@ -34,15 +34,34 @@ const { API_KEY, API_URL} = process.env;
 
 //  // ESTE CONTROLLER TRAE TODO DE LA DB Y LA API
 const getAllVideogames = async () => {
-    
-    // &page_size=40
-    // Aqui traigo todos los videogames de la api.
-    const apiVideogames = ( 
-        await axios.get(`${API_URL}?key=${API_KEY}&page_size=40`)
-    ).data.results;
 
-    const  apiVideogamesClean = apiVideogames?.map(videogame => { 
-        return {
+    //Aqui traigo todos los videogames de la db.
+    const databaseVideogames = await Videogame.findAll({
+        include: [{
+            model: Genre,
+            attributes: ["id", "name"],
+            through: {
+                attributes: []
+            },
+        },{
+            model: Platform,
+            attributes: ["id", "name"],
+            through: {
+                attributes: [],
+            }
+        }],
+    }); 
+    
+   
+    // &page_size=40
+    let pages = 0;
+    let results = [...databaseVideogames]; //sumo lo que tengo en la DB
+    let response = await axios.get(`${API_URL}?key=${API_KEY}`);
+    while (pages < 6) {
+        pages++;
+        //filtro solo la DATA que necesito enviar al FRONT
+        const apiVideogamesClean = response.data.results.map(videogame => {
+		    return {
                 id: videogame.id,
                 name: videogame.name,
                 released: videogame.released,
@@ -61,29 +80,12 @@ const getAllVideogames = async () => {
                     }
                 }),
         };
-    })
+		    });
+        results = [...apiVideogamesClean, ...results]
+        response = await axios.get(response.data.next) //vuelvo a llamar a la API con next
+    }
 
-
-    //Aqui traigo todos los videogames de la db.
-    const databaseVideogames = await Videogame.findAll({
-        include: [{
-            model: Genre,
-            attributes: ["id", "name"],
-            through: {
-                attributes: []
-            },
-        },{
-            model: Platform,
-            attributes: ["id", "name"],
-            through: {
-                attributes: [],
-            }
-        }],
-    }); 
-
-    const infoTotal = [...apiVideogamesClean, ...databaseVideogames];
-
-    return infoTotal;
+    return results;
 };
 
  // ESTE CONTROLLER BUSCA POR QUERY NAME
@@ -186,3 +188,53 @@ module.exports = {
     createVideogame, 
 };
 
+
+
+ //  // &page_size=40
+    // // Aqui traigo todos los videogames de la api.
+    // const apiVideogames = [];
+    // const  videogamesRequest = ( 
+    //     await axios.get(`${API_URL}?key=${API_KEY}&page_size=40`)
+    // ).data.results;
+
+    // const apiVideogamesClean = apiVideogames?.map(videogame => { 
+    //     return {
+    //             id: videogame.id,
+    //             name: videogame.name,
+    //             released: videogame.released,
+    //             image: videogame.background_image,
+    //             rating: videogame.rating,
+    //             Genres: videogame.genres.map(element => {
+    //                 return {
+    //                     id: element.id,
+    //                     name: element.name,
+    //                 }
+    //             }),
+    //             Platforms: videogame.platforms.map(element => {
+    //                 return {
+    //                     id: element.platform.id,
+    //                     name: element.platform.name
+    //                 }
+    //             }),
+    //     };
+    // })
+
+    // while (pages < 6) {
+    //     pages++;
+    //     //filtro solo la DATA que necesito enviar al FRONT
+    //     const gammesREADY = response.data.results.map(game => {
+    //         return{
+    //             id: game.id,
+    //             name: game.name,
+    //             background_image: game.background_image,
+    //             rating: game.rating,
+    //             genres: game.genres.map(g => g.name)
+    //         }
+    //     });
+    //     results = [...results, ...gammesREADY]
+    //     response = await axios.get(response.data.next) //vuelvo a llamar a la API con next
+    // }
+
+    
+
+    // const infoTotal = [...apiVideogamesClean, ...databaseVideogames];
