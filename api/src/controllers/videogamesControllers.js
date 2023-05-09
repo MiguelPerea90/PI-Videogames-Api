@@ -35,33 +35,34 @@ const { API_KEY, API_URL} = process.env;
 //  // ESTE CONTROLLER TRAE TODO DE LA DB Y LA API
 const getAllVideogames = async () => {
     
-    //Aqui traigo todos los videogames de la api.
+    // &page_size=40
+    // Aqui traigo todos los videogames de la api.
     const apiVideogames = ( 
-        await axios.get(`${API_URL}?key=${API_KEY}`)
-    ).data;
+        await axios.get(`${API_URL}?key=${API_KEY}&page_size=40`)
+    ).data.results;
 
-    const apiVideogamesClean = apiVideogames.map(videogame => {
+    const  apiVideogamesClean = apiVideogames?.map(videogame => { 
         return {
-            id: videogame.id,
-            name: videogame.name,
-            released: videogame.released,
-            image: videogame.image,
-            description: videogame.description,
-            rating: videogame.rating,
-            Platforms: videogame.Platforms.map(element => {
-                return {
-                    id: element.id,
-                    name: element.name
-                }
-            }),
-            Genres: videogame.Genres.map(element => {
-                return {
-                    id: element.id,
-                    name: element.name
-                }
-            })
-          };
+                id: videogame.id,
+                name: videogame.name,
+                released: videogame.released,
+                image: videogame.background_image,
+                rating: videogame.rating,
+                Genres: videogame.genres.map(element => {
+                    return {
+                        id: element.id,
+                        name: element.name,
+                    }
+                }),
+                Platforms: videogame.platforms.map(element => {
+                    return {
+                        id: element.platform.id,
+                        name: element.platform.name
+                    }
+                }),
+        };
     })
+
 
     //Aqui traigo todos los videogames de la db.
     const databaseVideogames = await Videogame.findAll({
